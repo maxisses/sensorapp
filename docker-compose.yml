@@ -1,0 +1,18 @@
+version: "3"
+services:
+  iot-smartphone-app:
+        build: iot-smartphone-app/.
+        restart: always
+        ports:
+          - 3000:3000
+  iot-subscriber:
+        build: iot-subscriber/.
+        ports:
+          - '5000:5000'
+        restart: always
+  mosquitto:
+        build: mosquitto-broker/mosquitto/.
+        ports:
+          - '1883:1883'
+          - '9001:9001'
+        restart: always
