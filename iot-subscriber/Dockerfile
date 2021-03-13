@@ -7,7 +7,6 @@ RUN pip install -r requirements.txt
 
 WORKDIR /
 
-COPY app.py /
 COPY hello.py /
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
@@ -15,4 +14,4 @@ ENV PORT 5000
 
 EXPOSE 5000
 
-ENTRYPOINT ["python3", "-X", "utf8", "-u", "app.py"]
+ENTRYPOINT ["python3", "-X", "utf8", "-u", "hello.py"]

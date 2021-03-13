@@ -5,14 +5,17 @@ services:
         restart: always
         ports:
           - 3000:3000
+        environment:
+          - LOCALIP=192.168.178.88
   iot-subscriber:
         build: iot-subscriber/.
         ports:
           - '5000:5000'
         restart: always
   mosquitto:
-        build: mosquitto-broker/mosquitto/.
+        build: mosquitto-broker/.
         ports:
           - '1883:1883'
           - '9001:9001'
+          - '8883:8883'
         restart: always

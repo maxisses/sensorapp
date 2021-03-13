@@ -7,6 +7,7 @@ WORKDIR /opt/app-root/src
 COPY package.json /opt/app-root/src
 RUN npm install --only=prod
 COPY server /opt/app-root/src/server
+COPY views /opt/app-root/src/views
 COPY public /opt/app-root/src/public
 
 ENV NODE_ENV production

@@ -1,8 +1,0 @@
-# Allow anonymous access to the sys
-topic read $SYS/#
-
-# Allow anonymous to read weather
-# topic read smartphone/#
-
-# readwrite to the loop
-# topic smartphone/#

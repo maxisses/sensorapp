@@ -1,5 +1,7 @@
-psycopg2-binary
+#psycopg2-binary
 flask
-paho-mqtt
 datetime
-threaded
+eventlet
+Flask-MQTT
+Flask-SocketIO==4.3.0
+Flask-Bootstrap

@@ -1,60 +1,75 @@
-from flask import Flask
-import paho.mqtt.client as mqtt
-import time
-from threading import Thread
-import threading
+import eventlet
+import json
+from flask import Flask, render_template
+from flask_mqtt import Mqtt
+from flask_socketio import SocketIO
+from flask_bootstrap import Bootstrap
+
+eventlet.monkey_patch()
 
 app = Flask(__name__)
-lock = threading.Lock()
-sessionId=0
-cont=True
+#app.config['SECRET'] = 'my secret key'
+#app.config['TEMPLATES_AUTO_RELOAD'] = True
+app.config['MQTT_BROKER_URL'] = 'mosquitto'
+app.config['MQTT_BROKER_PORT'] = 1883
+app.config['MQTT_USERNAME'] = 'PYTHONAPP'
+app.config['MQTT_PASSWORD'] = ''
+app.config['MQTT_KEEPALIVE'] = 5
+app.config['MQTT_TLS_ENABLED'] = False
 
-def on_connect(client, userdata, flags, rc): # The callback for when the client connects to the broker
-    print("Connected with result code {0}".format(str(rc))) # Print result of connection attempt
-    client.subscribe("mytopic")
+# Parameters for SSL enabled
+# app.config['MQTT_BROKER_PORT'] = 8883
+# app.config['MQTT_TLS_ENABLED'] = True
+# app.config['MQTT_TLS_INSECURE'] = True
+# app.config['MQTT_TLS_CA_CERTS'] = 'ca.crt'
 
+mqtt = Mqtt(app)
+socketio = SocketIO(app)
+bootstrap = Bootstrap(app)
 
-def on_message(client, userdata, msg): # The callback for when a PUBLISH message is received from the server.
-    global cont
-    print(msg.topic)
-    cont=False
-
-
-client = mqtt.Client(client_id="foo", clean_session=True)
-client.on_connect = on_connect # Define callback function for successful connection
-client.on_message = on_message # Define callback function for receipt of a message
-#client.username_pw_set(mqtt_user, mqtt_password)
-client.connect("mosquitto", port=1883)
-client.loop_start()
-
-def test(param1, param2):
-    lock.acquire()
-    try:
-        ret = client.publish("mytopic", "foo")
-        while cont:
-            time.sleep(5)
-            print("loop")
-    finally:
-        lock.release()
-
-    result = "foo"
-
-    return result
-
-@app.route("/")
-def hello():
-    return "Hello, World!"
+topic = "blub/blub1"
 
 
-@app.route('/mqtt', methods=['POST'])
-def check():
-    global sessionId
-    sessionId = sessionId + 1
-    t = Thread(target=test, args=(sessionId,None))
-    t.start()
-    return {'id': sessionId, 'eta': 0}
+@app.route('/')
+def index():
+    mqtt.subscribe(topic)
+    print("subscribed to: "+ topic)
+    return "Hello, MQTT"
+
+
+# @socketio.on('publish')
+# def handle_publish(json_str):
+#     data = json.loads(json_str)
+#     mqtt.publish(data['topic'], data['message'])
+
+
+# @socketio.on('subscribe')
+# def handle_subscribe(json_str):
+#     data = json.loads(json_str)
+#     mqtt.subscribe(data['topic'])
+
+
+# @socketio.on('unsubscribe_all')
+# def handle_unsubscribe_all():
+#     mqtt.unsubscribe_all()
+
+
+@mqtt.on_message()
+def handle_mqtt_message(client, userdata, message):
+    print(message)
+    print(message.topic)
+    data = dict(
+        topic=message.topic,
+        payload=message.payload.decode()
+    )
+    print("THERE IS A MESSAGE: " + data["payload"] + "  ---- on topic" + data["topic"])
+    socketio.emit('mqtt_message', data=data)
+
+
+@mqtt.on_log()
+def handle_logging(client, userdata, level, buf):
+    print(level, buf)
 
 
 if __name__ == '__main__':
-    print("started")
-    app.run()
+    socketio.run(app, host='0.0.0.0', port=5000, use_reloader=False, debug=True)

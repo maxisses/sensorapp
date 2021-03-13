@@ -6,6 +6,9 @@
 </head>
 <body>
     Hallo
+    <div id="container1">
+
+    </div>
     <div id="container">
 
     </div>
@@ -17,40 +20,18 @@
 <script>
     console.log(mqtt)
 
-    /* const host = "wss://fevhyi.messsaging.internetofthings.ibmcloud.com"
-    const ibm_topic = "iot-2/evt/test/fmt/txt"
+    var LOCALIP = "<%= LOCALIP %>"
+    var BROKER_SERVICE = "<%= BROKER_SERVICE %>"
+    var CRT = "<%= CRT %>"
+    console.log(LOCALIP)
+    console.log(BROKER_SERVICE)
 
-    const options = {
-        keepalive: 60,
-        clientId: "d:fevhyi:smartphone:112233445566",
-        port: 443,
-        username: 'use-token-auth',
-        password: 'banane123',
-        protocolId: 'MQTT',
-        protocolVersion: 4,
-        clean: true,
-        reconnectPeriod: 1000,
-        connectTimeout: 30 * 1000,
-        will: {
-            topic: 'WillMsg',
-            payload: 'Connection Closed abnormally..!',
-            qos: 0,
-            retain: false
-        },
-    }
-    
-    console.log('Connecting mqtt client')
-    const client = mqtt.connect(host, options)
-    console.log('Connection initialized')
-    client.on('connect', function () {
-        client.publish(ibm_topic , 'Hello mqtt')
-            }) */
-
-    const host = "ws://localhost"
+    const hostlocal = "wss://"+ LOCALIP 
+    const hostremote = BROKER_SERVICE
     const topic = "blub/blub1"
-    const clientId = "ICHBINES"
+    const clientId = "FRONTENDWEBAPP"
 
-    const options_connect = {
+    const options_connect_nonhttps = {
         keepalive: 60,
         clientId: clientId,
         port: 9001,
@@ -67,13 +48,41 @@
             retain: false
         },
     }
+
+    const options_connect = {
+        keepalive: 60,
+        clientId: clientId,
+        port: 8883,
+        username: 'maxisses',
+        protocolId: 'MQTT',
+        protocolVersion: 4,
+        clean: true,
+        reconnectPeriod: 1000,
+        connectTimeout: 30 * 1000,
+        will: {
+            topic: 'WillMsg',
+            payload: 'Connection Closed abnormally..!',
+            qos: 0,
+            retain: false
+        },
+        ca: CRT,
+        rejectUnauthorized: false
+    }
     
     console.log('Connecting to mqtt client')
-    var client = mqtt.connect(host, options_connect)
-    console.log('Connection initialized')
+    if (LOCALIP){
+        console.log("connecting to local broker, for dev and test ")
+        var client = mqtt.connect(hostlocal, options_connect)
+        console.log('Connection initialized')
+    }else{
+        console.log("connecting to service address: " + BROKER_SERVICE)
+        var client = mqtt.connect(hostremote, options_connect_remote)
+        console.log('Connection initialized')
+    }
 
     client.on('error', function (err) {
         console.log(err)
+        document.getElementById("container1").innerHTML = "Error Connecting to mqtt: " + err
         client.end()
     })
 
@@ -93,77 +102,31 @@
         console.log(clientId + ' disconnected')
     })
 
-    /* client.subscribe(topic, function (err) {
-            if (err) {
-                console.log("subscription didnt work" + String(err))
-            } else {
-                console.log("subscribed to topic: " + topic)}
-            }) */
-    
-    /* client.on('connect', function () {
-        console.log('success connecting to mqtt-Broker at: '+host)
-        client.subscribe(topic, function (err) {
-            if (err) {
-                console.log("subscription didnt work" + String(err))
-            } else {
-                var i;
-                for (i = 0; i < 10; i++) {
-                    client.publish(topic , 'AHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH', function (err) {
-                        if (err) {
-                            console.log("publish didnt work" + String(err))
-                        }else{
-                            console.log("published smth to topic: " + topic)
-                        }
-                    })
-                }
-            }
-        })
-    })
-
-    client.on("message", function (topic, payload) {
-        console.log("new message!!!!!!!!!!!!")
-        alert([topic, payload].join(": "))
-        client.end()
-    })
-
-
-    client.on('error', (err) => {
-        console.log('Connection error: ', err)
-        client.end()
-    })
-
-    client.on('reconnect', () => {
-        console.log('Reconnecting...')
-    }) */
-    
-</script>
-
-
-
-<script>
     let sensor = new window.Gyroscope();
     document.getElementById("container").innerHTML = "initial: " + sensor.x
 
     sensor.start()
 
     sensor.onreading = () => {
+        const sensordata = "X:" + sensor.x + "Y:"+ sensor.y + "Z:" + sensor.y;
+        client.publish(topic, sensordata)
         document.getElementById("container").innerHTML = "onreading: " + "X:" + sensor.x + "Y:"+ sensor.y + "Z:" + sensor.y;
     }
 
     sensor.onerror = e => {
         sensor.errorType = `Error: ${e.error.name}`;
         sensor.errorMessage = `Error message: ${e.error.message}`;
-        this.requestUpdate('sensorDataModel');
+        
     }
 
     sensor.onactivate = () => {
         this.requestUpdate('sensorDataModel');
     }; 
     if (window.Accelerometer == undefined) {
-        alert("no accelerometer");
+        console.log("no accelerometer");
     }
     else {
-        alert("accelerometer found");
+        console.log("accelerometer found");
     }
 
 </script>
