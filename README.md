@@ -1,4 +1,4 @@
-### 1. create credentials for postgres
+### 1. create credentials for postgres and put them into pg-datenbank.env file
 
 ### 2. docker-compose build
 ### 3. docker-compose up
