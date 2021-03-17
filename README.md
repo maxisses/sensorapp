@@ -1,5 +1,7 @@
-docker-compose build
-docker-compose up
+### 1. create credentials for postgres
+
+### 2. docker-compose build
+### 3. docker-compose up
 
 ## local https serving:
 npx localtunnel --port 3000
