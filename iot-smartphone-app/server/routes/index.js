@@ -1,25 +1,28 @@
-var express = require("express");
-var router = express.Router();
-const fs = require('fs')
+let express = require("express");
+let router = express.Router();
+let fs = require('fs')
 
 // fetch the url of the service to call when generating text
 var LOCALIP = process.env.LOCALIP
 var BROKER_SERVICE = process.env.BROKER_SERVICE
 
-fs.readFile('public/certs/ca.crt', 'utf8' , (err, data) => {
-    if (err) {
-      console.log(fs.readdirSync('.'))
-      console.error(err)
-      return
-    }
-    console.log(data)
-  })
-
-var CRT = "proces.env.CRT"
-
 // Main Route
 router.get("/", function(req, res){
-    res.render("gen_train_data.ejs", {LOCALIP: LOCALIP, BROKER_SERVICE: BROKER_SERVICE, CRT: CRT});
+    res.render("register_device.ejs", {LOCALIP: LOCALIP, BROKER_SERVICE: BROKER_SERVICE});
+});
+
+// register logic
+router.post("/register", function(req,res){
+  var username = req.body.username
+  console.log(username)
+  req.flash("success", "Willkommen " + username + ", deine Registrierung war erfolgreich")
+  res.redirect("/train?user=" + username);
+});
+
+// Main Route
+router.get("/train", function(req, res){
+  var username = req.query.user
+  res.render("gen_train_data.ejs", {LOCALIP: LOCALIP, BROKER_SERVICE: BROKER_SERVICE, USER: username});
 });
 
 

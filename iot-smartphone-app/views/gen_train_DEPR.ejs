@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>IBM Cloud Web Starter</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+    Hallo
+    <div id="container1">
+
+    </div>
+    <div id="container">
+
+    </div>
+</body>
+
+<script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+
+
+<script>
+    console.log(mqtt)
+
+    var LOCALIP = "<%= LOCALIP %>"
+    var BROKER_SERVICE = "<%= BROKER_SERVICE %>"
+    console.log(LOCALIP)
+    console.log(BROKER_SERVICE)
+
+    const hostlocal = "wss://"+ LOCALIP 
+    const hostremote = BROKER_SERVICE
+    const topic = "blub/blub1"
+    const clientId = "FRONTENDWEBAPP"
+
+    const options_connect = {
+        keepalive: 60,
+        clientId: clientId,
+        port: 9001,
+        username: 'maxisses',
+        protocolId: 'MQTT',
+        protocolVersion: 4,
+        clean: true,
+        reconnectPeriod: 1000,
+        connectTimeout: 30 * 1000,
+        will: {
+            topic: 'WillMsg',
+            payload: 'Connection Closed abnormally..!',
+            qos: 0,
+            retain: false
+        },
+        ca: CRT,
+        rejectUnauthorized: false
+    }
+    
+    console.log('Connecting to mqtt client')
+    if (LOCALIP){
+        console.log("connecting to local broker, for dev and test ")
+        var client = mqtt.connect(hostlocal, options_connect)
+        console.log('Connection initialized')
+    }else{
+        console.log("connecting to service address: " + BROKER_SERVICE)
+        var client = mqtt.connect(hostremote, options_connect)
+        console.log('Connection initialized')
+    }
+
+    client.on('error', function (err) {
+        console.log(err)
+        document.getElementById("container1").innerHTML = "Error Connecting to mqtt: " + err
+        client.end()
+    })
+
+    client.on('connect', function () {
+        console.log('client connected:' + clientId)
+        client.subscribe(topic, { qos: 0 })
+        client.publish(topic, 'AHHHHHHHHHHHHHHHHHHHHHHHHHHHH', { qos: 0, retain: false })
+    })
+
+    client.on("message", function (topic, payload) {
+        console.log("new message!!!!!!!!!!!!")
+        console.log('Received Message:= ' + payload.toString() + '\nOn topic:= ' + topic)
+        client.end()
+    })
+
+    // client.on('close', function () {
+    //     console.log(clientId + ' disconnected')
+    // })
+
+    let sensor = new window.Gyroscope();
+    document.getElementById("container").innerHTML = "initial: " + sensor.x
+
+    sensor.start()
+
+    sensor.onreading = () => {
+        const sensordata = "X:" + sensor.x + "Y:"+ sensor.y + "Z:" + sensor.y;
+        client.publish(topic, sensordata)
+        document.getElementById("container").innerHTML = "onreading: " + "X:" + sensor.x + "Y:"+ sensor.y + "Z:" + sensor.y;
+    }
+
+    sensor.onerror = e => {
+        sensor.errorType = `Error: ${e.error.name}`;
+        sensor.errorMessage = `Error message: ${e.error.message}`;
+        
+    }
+
+    sensor.onactivate = () => {
+        this.requestUpdate('sensorDataModel');
+    }; 
+    if (window.Accelerometer == undefined) {
+        console.log("no accelerometer");
+    }
+    else {
+        console.log("accelerometer found");
+    }
+
+</script>
+</html>

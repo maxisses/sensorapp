@@ -1,14 +1,11 @@
+docker-compose build
+docker-compose up
 
-
-## iot-smartphone-app
-
-start with:
-npm start
-
-local
+## local https serving:
 npx localtunnel --port 3000
 
-## mosquitto
-
-use certs folder to generate certs: http://www.steves-internet-guide.com/mosquitto-tls/
-docker run -it -p 1883:1883 -p 9001:9001 maxmosquitto
+## mosquitto TLS
+use certs folder to generate certs with the script and name all server cert to server.***
+set up mosquitto
+import cert to chrome (for web testing)
+import cert to android (just send the ca.crt file via e.g whatsapp and install it)

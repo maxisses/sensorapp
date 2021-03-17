@@ -12,6 +12,12 @@ services:
         ports:
           - '5000:5000'
         restart: always
+        environment:
+          - BROKER_URL=mosquitto
+          - MQTT_PORT=1883
+          - MQTT_TOPIC=smartphone/#
+        env_file:
+          - pg-db.env
   mosquitto:
         build: mosquitto-broker/.
         ports:
@@ -19,3 +25,10 @@ services:
           - '9001:9001'
           - '8883:8883'
         restart: always
+  test-db:
+      build: test-db/.
+      ports:
+        - '5001:5000'
+      restart: always
+      env_file:
+        - pg-db.env

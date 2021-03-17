@@ -4,15 +4,19 @@ from flask import Flask, render_template
 from flask_mqtt import Mqtt
 from flask_socketio import SocketIO
 from flask_bootstrap import Bootstrap
+import psycopg2
+import psycopg2.extras
+import os
+import json
 
 eventlet.monkey_patch()
 
 app = Flask(__name__)
 #app.config['SECRET'] = 'my secret key'
 #app.config['TEMPLATES_AUTO_RELOAD'] = True
-app.config['MQTT_BROKER_URL'] = 'mosquitto'
-app.config['MQTT_BROKER_PORT'] = 1883
-app.config['MQTT_USERNAME'] = 'PYTHONAPP'
+app.config['MQTT_BROKER_URL'] = os.getenv('BROKER_URL')
+app.config['MQTT_BROKER_PORT'] = int(os.getenv('MQTT_PORT'))
+app.config['MQTT_USERNAME'] = 'PYTHON_BACKEND'
 app.config['MQTT_PASSWORD'] = ''
 app.config['MQTT_KEEPALIVE'] = 5
 app.config['MQTT_TLS_ENABLED'] = False
@@ -23,16 +27,123 @@ app.config['MQTT_TLS_ENABLED'] = False
 # app.config['MQTT_TLS_INSECURE'] = True
 # app.config['MQTT_TLS_CA_CERTS'] = 'ca.crt'
 
+def create_table():
+    dbname = os.getenv('DB_DATABASE')
+    dbuser = os.getenv('DB_USER')
+    dbpassword = os.getenv('DB_PASSWORD')
+    dbhost = os.getenv('DB_HOST')
+    dbport = os.getenv('DB_PORT')
+    tablename = os.getenv('CURRENT_TABLE')
+
+    """ create table in the PostgreSQL database"""
+    command = (
+        """
+        CREATE TABLE """ + tablename + """ (
+                id BIGINT GENERATED ALWAYS AS IDENTITY,
+                username VARCHAR,
+                sensortype VARCHAR,
+                x REAL,
+                y REAL,
+                z REAL,
+                ts REAL
+        )
+        """)
+
+    conn = None
+    try:
+        # connect to the PostgreSQL server
+        conn = psycopg2.connect(dbname=dbname, user=dbuser, host=dbhost, port=dbport, password=dbpassword)
+        cur = conn.cursor()
+        # create table one by one
+        cur.execute(command)
+        # close communication with the PostgreSQL database server
+        cur.close()
+        # commit the changes
+        conn.commit()
+        print(f"new table with the name {tablename} created")
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+        print(f"table with the name {tablename} already exists")
+    finally:
+        if conn is not None:
+            conn.close()
+
+def tranform_messages():
+    return ""
+
+def write_to_table(data_flat):
+
+    """ dbname = os.getenv('DB_DATABASE')
+    dbuser = os.getenv('DB_USER')
+    dbpassword = os.getenv('DB_PASSWORD')
+    dbhost = os.getenv('DB_HOST')
+    dbport = os.getenv('DB_PORT')
+    tablename = os.getenv('CURRENT_TABLE')
+    
+    conn = None
+    try:
+        conn = psycopg2.connect(dbname=dbname, user=dbuser, host=dbhost, port=dbport, password=dbpassword)
+
+        count = len(data_flat)
+        print("________________________")
+        print(f"--- connection to {dbname} established ---")
+        print("________________________")
+        print(f"--- starting to insert {count} unique entries to table ---")
+        print("________________________")
+
+        cur = conn.cursor() """
+        
+    query = """
+        INSERT INTO """ + tablename + """ (username, sensortype, x, y, z, ts)
+            VALUES
+            (%s, %s, %s, %s, %s, %s);
+        """
+
+    cur.execute(query, data_flat)
+
+    print("________________________")
+    print(f"--- insert executed and written to table {tablename} ----")
+    print("________________________")
+
+    """ cur.close()
+    conn.commit()
+
+except (Exception, psycopg2.DatabaseError) as error:
+    print(error)
+
+finally:
+    if conn is not None:
+        conn.close() """
+
 mqtt = Mqtt(app)
 socketio = SocketIO(app)
 bootstrap = Bootstrap(app)
 
-topic = "blub/blub1"
+dbname = os.getenv('DB_DATABASE')
+dbuser = os.getenv('DB_USER')
+dbpassword = os.getenv('DB_PASSWORD')
+dbhost = os.getenv('DB_HOST')
+dbport = os.getenv('DB_PORT')
+tablename = os.getenv('CURRENT_TABLE')
 
+conn = None
+try:
+    conn = psycopg2.connect(dbname=dbname, user=dbuser, host=dbhost, port=dbport, password=dbpassword)
+    conn.autocommit = True
+    cur = conn.cursor()
+except (Exception, psycopg2.DatabaseError) as error:
+    print(error)
+
+topic = os.getenv('MQTT_TOPIC')
+print("Read the following topic to subscribe to: " + topic)
+
+mqtt.subscribe(topic)
+print("subscribed to: "+ topic)
+
+create_table()
 
 @app.route('/')
 def index():
-    mqtt.subscribe(topic)
     print("subscribed to: "+ topic)
     return "Hello, MQTT"
 
@@ -53,7 +164,7 @@ def index():
 # def handle_unsubscribe_all():
 #     mqtt.unsubscribe_all()
 
-
+i = 0
 @mqtt.on_message()
 def handle_mqtt_message(client, userdata, message):
     print(message)
@@ -62,13 +173,25 @@ def handle_mqtt_message(client, userdata, message):
         topic=message.topic,
         payload=message.payload.decode()
     )
-    print("THERE IS A MESSAGE: " + data["payload"] + "  ---- on topic" + data["topic"])
-    socketio.emit('mqtt_message', data=data)
+    # print("THERE IS A MESSAGE: " + data["payload"] + "  ---- on topic" + data["topic"])
+    # data = json.loads(data["payload"])
+    # print(data)
+    # data_flat = []
+    i =+ i
+    print(i)
+
+    # for key, value in data.items():
+    #     data_flat.append(value)
+
+    # print(data_flat)
+    # write_to_table(data_flat)
+    ## socketio.emit('mqtt_message', data=data)
 
 
 @mqtt.on_log()
 def handle_logging(client, userdata, level, buf):
     print(level, buf)
+    
 
 
 if __name__ == '__main__':

@@ -2,7 +2,8 @@
 const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
-
+const flash = require("connect-flash");
+const session = require('express-session');
 const healthRoutes = require('./routes/health-route');
 const indexRoutes = require('./routes/index');
 const swaggerRoutes = require('./routes/swagger-route');
@@ -10,6 +11,11 @@ const swaggerRoutes = require('./routes/swagger-route');
 const app = express();
 
 // enable parsing of http request body
+app.use(session({ cookie: { maxAge: 60000 }, 
+  secret: 'woot',
+  resave: false, 
+  saveUninitialized: false}));
+app.use(flash());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
