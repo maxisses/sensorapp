@@ -71,7 +71,7 @@ def create_table():
 def tranform_messages():
     return ""
 
-def write_to_table(data_flat):
+def write_to_table(data_cache):
 
     """ dbname = os.getenv('DB_DATABASE')
     dbuser = os.getenv('DB_USER')
@@ -99,8 +99,8 @@ def write_to_table(data_flat):
             (%s, %s, %s, %s, %s, %s);
         """
 
-    cur.execute(query, data_flat)
-
+    
+    psycopg2.extras.execute_batch(cur,query,data_cache)
     print("________________________")
     print(f"--- insert executed and written to table {tablename} ----")
     print("________________________")
@@ -164,27 +164,31 @@ def index():
 # def handle_unsubscribe_all():
 #     mqtt.unsubscribe_all()
 
-i = 0
+data_cache = []
 @mqtt.on_message()
 def handle_mqtt_message(client, userdata, message):
-    print(message)
-    print(message.topic)
+    #print(message)
+    #print(message.topic)
     data = dict(
         topic=message.topic,
         payload=message.payload.decode()
     )
-    # print("THERE IS A MESSAGE: " + data["payload"] + "  ---- on topic" + data["topic"])
-    # data = json.loads(data["payload"])
-    # print(data)
-    # data_flat = []
-    i =+ i
-    print(i)
+    ##print("THERE IS A MESSAGE: " + data["payload"] + "  ---- on topic" + data["topic"])
+    data = json.loads(data["payload"])
+    data_flat = []
+    #print(data)
+    for key, value in data.items():
+         data_flat.append(value)
+    
+    data_cache.append(data_flat)
 
-    # for key, value in data.items():
-    #     data_flat.append(value)
+    if len(data_cache) < 100:
+        print("caching " + str(len(data_cache)) + " items")
+    else:
 
-    # print(data_flat)
-    # write_to_table(data_flat)
+        print("WRITE TO DB")
+        write_to_table(data_cache)
+        data_cache.clear()
     ## socketio.emit('mqtt_message', data=data)
 
 

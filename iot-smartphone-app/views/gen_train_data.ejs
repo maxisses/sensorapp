@@ -97,7 +97,7 @@
             return Math.round(number * factor) / factor;
         }
 
-    let sensor_gyro = new window.Gyroscope({frequency: 10});
+    let sensor_gyro = new window.Gyroscope({frequency: 40});
 
     sensor_gyro.start()
 
@@ -134,7 +134,7 @@
         console.log("Gyroscope found");
     }
 
-    let sensor_accel = new window.Accelerometer({frequency: 10});
+    let sensor_accel = new window.Accelerometer({frequency: 40});
 
     sensor_accel.start()
 
