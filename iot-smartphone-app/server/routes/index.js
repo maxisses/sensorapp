@@ -25,5 +25,16 @@ router.get("/train", function(req, res){
   res.render("gen_train_data.ejs", {LOCALIP: LOCALIP, BROKER_SERVICE: BROKER_SERVICE, USER: username});
 });
 
+// Main Route
+router.get("/test", function(req, res){
+  var username = req.query.user
+  res.render("gen_test_data.ejs", {LOCALIP: LOCALIP, BROKER_SERVICE: BROKER_SERVICE, USER: username});
+});
+
+router.get("/about", function(req, res){
+  var username = req.query.user
+  res.render("about.ejs", {LOCALIP: LOCALIP, BROKER_SERVICE: BROKER_SERVICE, USER: username});
+});
+
 
 module.exports = router;

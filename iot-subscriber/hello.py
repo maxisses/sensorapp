@@ -45,7 +45,8 @@ def create_table():
                 x REAL,
                 y REAL,
                 z REAL,
-                ts REAL
+                ts REAL,
+                class VARCHAR
         )
         """)
 
@@ -71,49 +72,16 @@ def create_table():
 def tranform_messages():
     return ""
 
-def write_to_table(data_cache):
-
-    """ dbname = os.getenv('DB_DATABASE')
-    dbuser = os.getenv('DB_USER')
-    dbpassword = os.getenv('DB_PASSWORD')
-    dbhost = os.getenv('DB_HOST')
-    dbport = os.getenv('DB_PORT')
-    tablename = os.getenv('CURRENT_TABLE')
-    
-    conn = None
-    try:
-        conn = psycopg2.connect(dbname=dbname, user=dbuser, host=dbhost, port=dbport, password=dbpassword)
-
-        count = len(data_flat)
-        print("________________________")
-        print(f"--- connection to {dbname} established ---")
-        print("________________________")
-        print(f"--- starting to insert {count} unique entries to table ---")
-        print("________________________")
-
-        cur = conn.cursor() """
-        
+def write_to_table(data_cache):    
     query = """
-        INSERT INTO """ + tablename + """ (username, sensortype, x, y, z, ts)
+        INSERT INTO """ + tablename + """ (username, sensortype, x, y, z, ts, class)
             VALUES
-            (%s, %s, %s, %s, %s, %s);
+            (%s, %s, %s, %s, %s, %s, %s);
         """
-
-    
     psycopg2.extras.execute_batch(cur,query,data_cache)
     print("________________________")
     print(f"--- insert executed and written to table {tablename} ----")
     print("________________________")
-
-    """ cur.close()
-    conn.commit()
-
-except (Exception, psycopg2.DatabaseError) as error:
-    print(error)
-
-finally:
-    if conn is not None:
-        conn.close() """
 
 mqtt = Mqtt(app)
 socketio = SocketIO(app)
@@ -184,6 +152,7 @@ def handle_mqtt_message(client, userdata, message):
 
     if len(data_cache) < 100:
         print("caching " + str(len(data_cache)) + " items")
+        print(data_flat)
     else:
 
         print("WRITE TO DB")
