@@ -94,21 +94,18 @@
 
 
 <script>
-    var LOCALIP = "<%= LOCALIP %>"
-    var BROKER_SERVICE = "<%= BROKER_SERVICE %>"
+    var mqqt_broker_url = "<%= BROKER_URL %>"
+    var mqqt_broker_port = "<%= BROKER_PORT %>"
     var username = "<%= USER %>"
     console.log(username)
-    console.log(LOCALIP)
-    console.log(BROKER_SERVICE)
+    console.log("env vars to connect to mqtt: " + mqqt_broker_url + ":" + mqqt_broker_port )
 
-    const hostlocal = LOCALIP 
-    const hostremote = BROKER_SERVICE
     const topic = "smartphone/" + username
     const clientId = "FRONTENDWEBAPP"
     const port = 
 
      // Create a client instance
-    client = new Paho.MQTT.Client(hostlocal, Number(9001), "JSFRONTEND-" + username);
+    client = new Paho.MQTT.Client(mqqt_broker_url, Number(mqqt_broker_port), "JSFRONTEND-" + username);
 
     // set callback handlers
     client.onConnectionLost = onConnectionLost;
@@ -116,32 +113,6 @@
 
     // connect the client
     client.connect({onSuccess:onConnect, useSSL: true});
-
-    // Create a client instance
-
-  
-/*     client = new Paho.MQTT.Client("fevhyi.messaging.internetofthings.ibmcloud.com", Number(443), "fevhyi:smartphone:112233445566");
-
-    // set callback handlers
-    client.onConnectionLost = onConnectionLost;
-    client.onMessageArrived = onMessageArrived;
-
-    var options = {
-        userName: "use-token-auth",
-        password: "banane123",
-        timeout: 3,
-        useSSL: true,
-        //Gets Called if the connection has sucessfully been established
-        onSuccess: onConnect,
-        //Gets Called if the connection could not be established
-        onFailure: function (message) {
-            alert("Connection failed: " + message.errorMessage);
-        }
-    };
-
-    // connect the client
-    client.connect(options); */
-
 
     // called when the client connects
     function onConnect() {

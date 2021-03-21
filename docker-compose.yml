@@ -6,7 +6,8 @@ services:
         ports:
           - 3000:3000
         environment:
-          - LOCALIP=192.168.178.88
+          - BROKER_URL=192.168.178.88
+          - BROKER_PORT=9001
   iot-subscriber:
         build: iot-subscriber/.
         ports:

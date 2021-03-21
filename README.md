@@ -1,4 +1,5 @@
-local deployment
+# local deployment
+
 
 ### 1. create credentials for postgres and put them into pg-datenbank.env file
 
@@ -13,3 +14,18 @@ import cert to android (just send the ca.crt file via e.g whatsapp and install i
 
 ## local https serving (required because sensor works only in https context):
 npx localtunnel --port 3000
+
+# remote deployment
+
+## mosquitto
+create loadbalancer service
+get cert from ibm cloud cert manager
+put the certs into mosquitto
+deploy
+
+## frontend
+set var for using local or remote mosquitto
+
+## backend
+
+
