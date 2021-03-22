@@ -115,11 +115,11 @@
     // connect the client
     function connectMqtt() {
         try {
-        client.connect({onSuccess:onConnect, useSSL: true});
-        document.getElementById("debugger").innerHTML = "connection succesful"
+            client.connect({onSuccess:onConnect, useSSL: true});
+            document.getElementById("debugger").innerHTML = "connection succesful"
         }
-    catch (e) {
-        document.getElementById("debugger").innerHTML = "connecting fails - check broker connectivity: " + e
+        catch (e) {
+            document.getElementById("debugger").innerHTML = "connecting fails - check broker connectivity: " + e
         }
     }
 
@@ -145,6 +145,16 @@
     // called when a message arrives
     function onMessageArrived(message) {
         // console.log("onMessageArrived:"+message.payloadString);
+    }
+
+    function disconnectMqtt() {
+        try {
+            client.disconnect();
+            document.getElementById("debugger").innerHTML = "disconnection succesful"
+        }
+        catch (e) {
+            document.getElementById("debugger").innerHTML = "connecting fails - check broker connectivity: " + e
+        }
     }
 
 </script>
@@ -245,6 +255,7 @@
                     requestPermission()
                     connectMqtt();
                     getAccel();
+                    document.getElementById('sendenlive').style.visibility = "visible"
                 } else {
                     connectMqtt();
                     console.log("not an iPhone")
@@ -261,18 +272,20 @@
         } else {
             if (iOS() == true) {
                     console.log("iPhone DETECTED, deactivating sensors")
+                    
                     document.getElementById("debugger2").innerHTML = "iPhone DETECTED, deactivating sensors"
                     window.removeEventListener('devicemotion', event_gyro);
                     window.removeEventListener('deviceorientation', event_accel);
+                    document.getElementById('sendenlive').style.visibility = "hidden"
                 } else {
                     console.log("deaktiviert")
+                    disconnectMqtt()
                     sensor_gyro.stop()
                     sensor_accel.stop()
                     sensor_gyro.active = false;
                     sensor_accel.active = false;
                     document.getElementById('sendenlive').style.visibility = "hidden"
-                }
-            
+                }     
         }
     });
 
