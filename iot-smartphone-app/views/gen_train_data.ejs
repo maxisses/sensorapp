@@ -136,6 +136,13 @@
         if (responseObject.errorCode !== 0) {
             console.log("onConnectionLost:"+responseObject.errorMessage);
             document.getElementById("debugger").innerHTML = "connection lost: " + responseObject.errorMessage
+            try {
+                client.connect({onSuccess:onConnect, useSSL: true});
+                document.getElementById("debugger").innerHTML = "reconnection succesful"
+                }
+            catch (e) {
+                document.getElementById("debugger").innerHTML = "connecting fails - check broker connectivity: " + e
+                }
         }
     }
 
