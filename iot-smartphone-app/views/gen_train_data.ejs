@@ -275,23 +275,16 @@
                 window.location.href = '/'
             }
         } else {
+            document.getElementById('sendenlive').style.visibility = "hidden"
+            document.getElementById('sendenoffline').style.visibility = "visible"
+            disconnectMqtt()
             if (iOS() == true) {
-                    console.log("iPhone DETECTED, deactivating sensors")
-                    
+                    console.log("iPhone, deactivated Mqtt")                   
                     document.getElementById("debugger2").innerHTML = "iPhone DETECTED, deactivating sensors"
-                    window.removeEventListener('devicemotion', event_gyro);
-                    window.removeEventListener('deviceorientation', event_accel);
-                    document.getElementById('sendenlive').style.visibility = "hidden"
-                    document.getElementById('sendenoffline').style.visibility = "visible"
                 } else {
-                    console.log("deaktiviert")
-                    disconnectMqtt()
-                    sensor_gyro.stop()
-                    sensor_accel.stop()
-                    sensor_gyro.active = false;
-                    sensor_accel.active = false;
-                    document.getElementById('sendenlive').style.visibility = "hidden"
-                    document.getElementById('sendenoffline').style.visibility = "visible"
+                    onsole.log("Android, deactivated Mqtt")
+                    // sensor_gyro.active = false;
+                    // sensor_accel.active = false;
                 }     
         }
     });
