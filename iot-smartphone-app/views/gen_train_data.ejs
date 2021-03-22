@@ -113,13 +113,15 @@
     client.onMessageArrived = onMessageArrived;
 
     // connect the client
-    try {
+    function connectMqtt() {
+        try {
         client.connect({onSuccess:onConnect, useSSL: true});
         document.getElementById("debugger").innerHTML = "connection succesful"
         }
     catch (e) {
         document.getElementById("debugger").innerHTML = "connecting fails - check broker connectivity: " + e
         }
+    }
 
     // called when the client connects
     function onConnect() {
@@ -136,13 +138,7 @@
         if (responseObject.errorCode !== 0) {
             console.log("onConnectionLost:"+responseObject.errorMessage);
             document.getElementById("debugger").innerHTML = "connection lost: " + responseObject.errorMessage
-            try {
-                client.connect({onSuccess:onConnect, useSSL: true});
-                document.getElementById("debugger").innerHTML = "reconnection succesful"
-                }
-            catch (e) {
-                document.getElementById("debugger").innerHTML = "connecting fails - check broker connectivity: " + e
-                }
+            connectMqtt();
         }
     }
 
@@ -247,8 +243,10 @@
                 if (iOS() == true) {
                     console.log("iPhone DETECTED")
                     requestPermission()
+                    connectMqtt();
                     getAccel();
                 } else {
+                    connectMqtt();
                     console.log("not an iPhone")
                     console.log("aktiviert")
                     sensor_gyro.start()
