@@ -71,8 +71,6 @@ token_response = requests.post('https://iam.cloud.ibm.com/identity/token', data=
 mltoken = token_response.json()["access_token"]
 header = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + mltoken}
 def transform_and_post_messages(data_cache):
-    
-    print(data_cache)
     aggregated_data =[]
     for item in data_cache:
         aggregated_data = [*aggregated_data, *item[2:5]]
@@ -145,9 +143,11 @@ def index():
 
 data_cache = []
 messages_to_aggregate = 10
+post_to_api_freq = 20
 @mqtt.on_message()
 def handle_mqtt_message(client, userdata, message):
     global data_cache
+    global post_to_api_freq
     data = dict(
         topic=message.topic,
         payload=message.payload.decode()
@@ -157,7 +157,7 @@ def handle_mqtt_message(client, userdata, message):
     #print(data)
     for key, value in data.items():
          data_flat.append(value)   
-    print(data_flat)
+    #print(data_flat)
     data_cache.append(data_flat)
 
     ## filter for each user 
@@ -167,13 +167,18 @@ def handle_mqtt_message(client, userdata, message):
         print("Cache ready for ML for user: " + current_user)
         remove_items = []
         [user_selection_cache.append(item) if current_user == item[0] else remove_items.append(idx) for idx, item in enumerate(data_cache)]
-        print("transforming " + str(messages_to_aggregate) + " messages for ML model and Posting")
-        transform_and_post_messages(user_selection_cache)
+        print("transforming " + str(messages_to_aggregate) + " messages for ML model and Posting") 
+        if post_to_api_freq != 0:
+            post_to_api_freq -=1
+            print(str(post_to_api_freq) + " away from next post/inference to ML model")
+        else:
+            transform_and_post_messages(user_selection_cache)
+            post_to_api_freq = 20
         data_cache = list(map(data_cache.__getitem__, remove_items))
 
-@mqtt.on_log()
-def handle_logging(client, userdata, level, buf):
-    print(level, buf)
+# @mqtt.on_log()
+# def handle_logging(client, userdata, level, buf):
+#     ## print(level, buf)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
