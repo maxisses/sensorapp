@@ -8,6 +8,7 @@ import psycopg2.extras
 import os
 import json
 import requests
+from itertools import islice
 
 app = Flask(__name__)
 #app.config['SECRET'] = 'my secret key'
@@ -70,6 +71,8 @@ token_response = requests.post('https://iam.cloud.ibm.com/identity/token', data=
 mltoken = token_response.json()["access_token"]
 header = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + mltoken}
 def transform_and_post_messages(data_cache):
+    
+    print(data_cache)
     aggregated_data =[]
     for item in data_cache:
         aggregated_data = [*aggregated_data, *item[2:5]]
@@ -87,8 +90,9 @@ def transform_and_post_messages(data_cache):
     payload_scoring = {"input_data": [{"fields": column_names, "values": [aggregated_data]}]}
 
     response_scoring = requests.post(scoring_endpoint, json=payload_scoring, headers={'Authorization': 'Bearer ' + mltoken})
-    print("Scoring response")
+    print("Scoring response for user: " + data_cache[0][0])
     print(response_scoring.json())
+    mqtt.publish('prediction/'+username, str(response_scoring.json()))
     return ""
 
 def write_to_table(data_cache):    
@@ -102,9 +106,12 @@ def write_to_table(data_cache):
     print(f"--- insert executed and written to table {tablename} ----")
     print("________________________")
 
+def check_list(lst, x, n):
+    gen = (True for i in lst if i==x)
+    return next(islice(gen, n-1, None), False)
+
 mqtt = Mqtt(app)
 app = Flask(__name__)
-## socketio = SocketIO(app)
 bootstrap = Bootstrap(app)
 
 dbname = os.getenv('DB_DATABASE')
@@ -113,6 +120,7 @@ dbpassword = os.getenv('DB_PASSWORD')
 dbhost = os.getenv('DB_HOST')
 dbport = os.getenv('DB_PORT')
 tablename = os.getenv('CURRENT_TABLE')
+
 
 conn = None
 try:
@@ -139,6 +147,7 @@ data_cache = []
 messages_to_aggregate = 10
 @mqtt.on_message()
 def handle_mqtt_message(client, userdata, message):
+    global data_cache
     data = dict(
         topic=message.topic,
         payload=message.payload.decode()
@@ -148,16 +157,19 @@ def handle_mqtt_message(client, userdata, message):
     #print(data)
     for key, value in data.items():
          data_flat.append(value)   
-    #print(data_flat)
+    print(data_flat)
     data_cache.append(data_flat)
 
-    if len(data_cache) == messages_to_aggregate:
+    ## filter for each user 
+    if check_list([item for subcache in data_cache for item in subcache], data_cache[0][0], messages_to_aggregate):
+        user_selection_cache = []
+        current_user = data_cache[0][0]
+        print("Cache ready for ML for user: " + current_user)
+        remove_items = []
+        [user_selection_cache.append(item) if current_user == item[0] else remove_items.append(idx) for idx, item in enumerate(data_cache)]
         print("transforming " + str(messages_to_aggregate) + " messages for ML model and Posting")
-        transform_and_post_messages(data_cache)
-        print("Clearing Cache of " + str(messages_to_aggregate) + " collected messages")
-        data_cache.clear()
-        print("If its cleared you see an empty list: " + str(data_cache))
-
+        transform_and_post_messages(user_selection_cache)
+        data_cache = list(map(data_cache.__getitem__, remove_items))
 
 @mqtt.on_log()
 def handle_logging(client, userdata, level, buf):

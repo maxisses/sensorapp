@@ -22,6 +22,15 @@
                     </h5>
                 </div>
             </div>
+            <div class="card" style="border: none;">
+                <div class="card-body text-center">
+                    <h5 class="card-title text-center">Inferenz:
+                        <div>
+                            <span id="inference"> </span>
+                        </div>
+                    </h5>
+                </div>
+            </div>
         </div>
         <div class="col-md-12">
             <div class="spinner-grow" role="status" id="sendenlive" style="visibility: hidden; color: green;">
@@ -80,8 +89,8 @@
             </div>
         </div>
     </div>
-    <div id="debugger" style="height:50px; visibility: visible;"></div>
-    <div id="debugger2"  style="height:50px; visibility: visible;"></div>
+    <div id="debugger" style="height:50px; visibility: hidden;"></div>
+    <div id="debugger2"  style="height:50px; visibility: hidden;"></div>
     <div id="debugger3"  style="height:50px; visibility: visible;"></div>
 </div>
 
@@ -121,7 +130,7 @@
     function onConnect() {
     // Once a connection has been made, make a subscription and send a message.
         console.log("Connected!");
-        client.subscribe(topic);
+        client.subscribe("prediction/" + username);
         // message = new Paho.MQTT.Message('{ "d": {"key1": "value1"} }');
         // message.destinationName = topic;
         // client.send(message);
@@ -138,7 +147,7 @@
 
     // called when a message arrives
     function onMessageArrived(message) {
-        // console.log("onMessageArrived:"+message.payloadString);
+        document.getElementById("inference").innerHTML = message.payloadString
     }
 
     function disconnectMqtt() {
@@ -267,7 +276,7 @@
             disconnectMqtt()
             if (iOS() == true) {
                     console.log("iPhone, deactivated Mqtt")                   
-                    document.getElementById("debugger").innerHTML = "iPhone DETECTED, deactivating sensors"
+                    // document.getElementById("debugger").innerHTML = "iPhone DETECTED, deactivating sensors"
                 } else {
                     onsole.log("Android, deactivated Mqtt")
                     // sensor_gyro.active = false;
@@ -326,9 +335,9 @@
                         az: sensor_accel.z,
                         ts: sensor_accel.timestamp,   
                     }
-        document.getElementById("debugger2").innerHTML = JSON.stringify(accel_dict)
+        // document.getElementById("debugger2").innerHTML = JSON.stringify(accel_dict)
         message = new Paho.MQTT.Message(JSON.stringify(accel_dict));
-        document.getElementById("debugger3").innerHTML = message.payload
+        // document.getElementById("debugger3").innerHTML = message.payload
         message.destinationName = topic;
         client.send(message);
         document.getElementById("accel_x").innerHTML = accel_dict["ax"].toFixed(2);
