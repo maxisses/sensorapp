@@ -5,6 +5,7 @@ let fs = require('fs')
 // fetch the url of the service to call when generating text
 var BROKER_URL = process.env.BROKER_URL
 var BROKER_PORT = process.env.BROKER_PORT
+var WML_API_KEY = process.env.WML_API_KEY
 
 // Main Route
 router.get("/", function(req, res){
@@ -14,9 +15,13 @@ router.get("/", function(req, res){
 // register logic
 router.post("/register", function(req,res){
   var username = req.body.username
-  console.log(username)
-  req.flash("success", "Willkommen " + username + ", deine Registrierung war erfolgreich")
-  res.redirect("/train?user=" + username);
+  var type = req.body.type
+  if (type == "train"){
+    res.redirect("/train?user=" + username);
+  } else {
+    req.flash("success", "Willkommen " + username + ", deine Registrierung war erfolgreich")
+    res.redirect("/test?user=" + username);
+  }
 });
 
 // Main Route
@@ -28,7 +33,7 @@ router.get("/train", function(req, res){
 // Main Route
 router.get("/test", function(req, res){
   var username = req.query.user
-  res.render("gen_test_data.ejs", {BROKER_URL: BROKER_URL, BROKER_PORT: BROKER_PORT, USER: username});
+  res.render("gen_test_data.ejs", {BROKER_URL: BROKER_URL, BROKER_PORT: BROKER_PORT,WML_API_KEY: WML_API_KEY, USER: username});
 });
 
 router.get("/about", function(req, res){

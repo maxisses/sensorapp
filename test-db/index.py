@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 import psycopg2
 import psycopg2.extras
 
+
 def connect_to_db():
 
     dbname = os.getenv('DB_DATABASE')

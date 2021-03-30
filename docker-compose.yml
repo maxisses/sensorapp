@@ -8,6 +8,8 @@ services:
         environment:
           - BROKER_URL=192.168.178.88
           - BROKER_PORT=9001
+          - WML_API_KEY=azbWTyF8tLLrlhQxzyzcziXKGK7N6seWHnodOpgnZX64
+          - MQTT_TRAIN_TOPIC=
   iot-subscriber:
         build: iot-subscriber/.
         ports:
@@ -16,9 +18,22 @@ services:
         environment:
           - BROKER_URL=mosquitto
           - MQTT_PORT=1883
-          - MQTT_TOPIC=smartphone/#
+          - MQTT_TRAIN_TOPIC=train/#
+
         env_file:
           - pg-datenbank.env
+  inference-app:
+        build: inference-app/.
+        ports:
+          - '4000:4000'
+        restart: always
+        environment:
+          - BROKER_URL=mosquitto
+          - MQTT_PORT=1883
+          - MQTT_INFER_TOPIC=inference/#
+        env_file:
+          - pg-datenbank.env
+          - ibm-wml.env
   mosquitto:
         build: mosquitto-broker/.
         ports:
@@ -27,9 +42,11 @@ services:
           - '8883:8883'
         restart: always
   test-db:
-      build: test-db/.
-      ports:
-        - '5001:5000'
-      restart: always
-      env_file:
-        - pg-datenbank.env
+        build: test-db/.
+        ports:
+          - '5001:5000'
+        restart: always
+        environment:
+          - MQTT_INFER_TOPIC=inference/#
+        env_file:
+          - pg-datenbank.env

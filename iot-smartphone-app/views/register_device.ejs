@@ -6,11 +6,12 @@
   <div class="col-md-12">
     <form action="/register" method="POST">
         <div class="form-group">
-            <label for="InputUsername">Username</label>
-            <input type="text" class="form-control" name="username" placeholder="Nutzername">
-            <small id="userHelp" class="form-text text-muted">Zur Auswertung im MQTT topic</small>
+            <label for="InputUsername" style="margin:0.3rem;">Nutzername</label>
+            <input type="text" class="form-control" name="username" placeholder="Nutzername" style="margin:0.3rem;">
+            <small id="userHelp" class="form-text text-muted" style="margin:0.2rem;">Zur Auswertung im MQTT topic</small>
         </div>
-      <button type="submit" class="btn btn-primary">Daten generieren</button>
+      <button type="submit" class="btn btn-primary" name="type" value="train" style="margin:0.3rem;">Trainingsdaten generieren</button>
+      <button type="submit" class="btn btn-primary" name="type" value="test" style="margin:0.3rem;">Bewegungen durch ML klassifizieren</button>
     </form>
   </div>
 </div>

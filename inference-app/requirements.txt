@@ -1,0 +1,7 @@
+psycopg2-binary
+flask
+datetime
+Flask-MQTT
+Flask-SocketIO==4.3.0
+Flask-Bootstrap
+requests
