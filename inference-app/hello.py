@@ -173,7 +173,7 @@ def handle_mqtt_message(client, userdata, message):
             print(str(post_to_api_freq) + " away from next post/inference to ML model")
         else:
             transform_and_post_messages(user_selection_cache)
-            post_to_api_freq = 20
+            post_to_api_freq = 10
         data_cache = list(map(data_cache.__getitem__, remove_items))
 
 # @mqtt.on_log()

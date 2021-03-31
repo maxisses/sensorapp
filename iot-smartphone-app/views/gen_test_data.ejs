@@ -183,60 +183,76 @@
         DeviceOrientationEvent.requestPermission()
         }
     
-    function getAccel(){
-        window.addEventListener('deviceorientation',(event_gyro) => {
-            // frequency is 60Hz per default
-            
-            var gyro_dict_iphone = { 
-                            user: username,
-                            sensor: "gyroscope",
-                            oa: event_gyro.alpha,
-                            ob: event_gyro.beta,
-                            og: event_gyro.gamma,
-                            ts: event_gyro.timeStamp,  
-                        };
-            
-            console.log(gyro_dict_iphone)
-            message = new Paho.MQTT.Message(JSON.stringify(gyro_dict_iphone));
-            document.getElementById("debugger").innerHTML = message;
-            message.destinationName = topic;
-            try {
-                client.send(message);
+        gyro_frequency_filter = 0
+    function handleOrientationEvent(event_gyro) {
+            gyro_frequency_filter ++;
+            console.log(gyro_frequency_filter)
+            if (gyro_frequency_filter == 3) {
+                gyro_frequency_filter = 0
+                var currentClass = document.querySelector('input[name = "btnradio"]:checked').value;
+                var gyro_dict_iphone = { 
+                                user: username,
+                                sensor: "gyroscope",
+                                oa: event_gyro.alpha,
+                                ob: event_gyro.beta,
+                                og: event_gyro.gamma,
+                                ts: event_gyro.timeStamp,
+                                class: currentClass    
+                            };
+                
+                console.log(gyro_dict_iphone)
+                message = new Paho.MQTT.Message(JSON.stringify(gyro_dict_iphone));
+                document.getElementById("debugger").innerHTML = message;
+                message.destinationName = topic;
+                try {
+                    client.send(message);
+                }
+                catch (e) {
+                    document.getElementById("debugger").innerHTML = "sending messages fails - check broker connectivity: " + e
+                }
+                document.getElementById("alpha").innerHTML = gyro_dict_iphone["oa"].toFixed(2);
+                document.getElementById("beta").innerHTML = gyro_dict_iphone["ob"].toFixed(2);
+                document.getElementById("gamma").innerHTML = gyro_dict_iphone["og"].toFixed(2);
+                }
             }
-            catch (e) {
-                document.getElementById("debugger").innerHTML = "sending messages fails - check broker connectivity: " + e
+    
+    accel_frequency_filter = 0
+    function handleMotionEvent(event_accel) {
+            accel_frequency_filter ++;
+            if (accel_frequency_filter == 3) {
+                accel_frequency_filter = 0
+                var currentClass = document.querySelector('input[name = "btnradio"]:checked').value;
+                console.log("Timestamp:" + event_accel.timeStamp)
+                var accel_dict_iphone = { 
+                                user: username,
+                                sensor: "accelerometer",
+                                ax: event_accel.accelerationIncludingGravity.x,
+                                ay: event_accel.accelerationIncludingGravity.y,
+                                az: event_accel.accelerationIncludingGravity.z,
+                                ts: event_accel.timeStamp,
+                                class: currentClass    
+                            };
+                
+                console.log(accel_dict_iphone)
+                message = new Paho.MQTT.Message(JSON.stringify(accel_dict_iphone));
+                document.getElementById("debugger").innerHTML = message;
+                message.destinationName = topic;          
+                try {
+                    client.send(message);
+                    }
+                catch (e) {
+                    document.getElementById("debugger").innerHTML = "sending messages fails 2 - check broker connectivity: " + e
+                    }
+                document.getElementById("accel_x").innerHTML = accel_dict_iphone["ax"].toFixed(2);
+                document.getElementById("accel_y").innerHTML = accel_dict_iphone["ay"].toFixed(2);
+                document.getElementById("accel_z").innerHTML = accel_dict_iphone["az"].toFixed(2);
+                }
             }
-            document.getElementById("alpha").innerHTML = gyro_dict_iphone["oa"].toFixed(2);
-            document.getElementById("beta").innerHTML = gyro_dict_iphone["ob"].toFixed(2);
-            document.getElementById("gamma").innerHTML = gyro_dict_iphone["og"].toFixed(2);
-            });
-        
-        window.addEventListener('devicemotion', (event_accel) => {
-            var accel_dict_iphone = { 
-                            user: username,
-                            sensor: "accelerometer",
-                            ax: event_accel.accelerationIncludingGravity.x,
-                            ay: event_accel.accelerationIncludingGravity.y,
-                            az: event_accel.accelerationIncludingGravity.z,
-                            ts: event_accel.timeStamp,
-                        };
-            
-            console.log(accel_dict_iphone)
-            message = new Paho.MQTT.Message(JSON.stringify(accel_dict_iphone));
-            document.getElementById("debugger").innerHTML = message;
-            message.destinationName = topic;
-            try {
-                client.send(message);
-            }
-            catch (e) {
-                document.getElementById("debugger").innerHTML = "sending messages fails 2 - check broker connectivity: " + e
-            }
-            document.getElementById("accel_x").innerHTML = accel_dict_iphone["ax"].toFixed(2);
-            document.getElementById("accel_y").innerHTML = accel_dict_iphone["ay"].toFixed(2);
-            document.getElementById("accel_z").innerHTML = accel_dict_iphone["az"].toFixed(2);
-            document.getElementById("timestamp").innerHTML = accel_dict["ts"].toFixed(2);
-            
-        });
+    
+    function getSensor(){
+        window.addEventListener("deviceorientation", handleOrientationEvent, false);
+
+        window.addEventListener("devicemotion", handleMotionEvent, false);
     };
 </script>
 
@@ -251,9 +267,10 @@
             if (username) {
                 if (iOS() == true) {
                     console.log("iPhone DETECTED")
+                    document.getElementById("debugger2").innerHTML = "toggle on iphone"
                     requestPermission()
                     connectMqtt();
-                    getAccel();
+                    getSensor();
                     document.getElementById('sendenlive').style.visibility = "visible"
                     document.getElementById('sendenoffline').style.visibility = "hidden"
                 } else {
@@ -271,23 +288,27 @@
                 window.location.href = '/'
             }
         } else {
+            document.getElementById("debugger2").innerHTML = "toggle off"
             document.getElementById('sendenlive').style.visibility = "hidden"
             document.getElementById('sendenoffline').style.visibility = "visible"
             disconnectMqtt()
             if (iOS() == true) {
-                    console.log("iPhone, deactivated Mqtt")                   
-                    // document.getElementById("debugger").innerHTML = "iPhone DETECTED, deactivating sensors"
+                    console.log("iPhone, deactivated Mqtt")
+                    document.getElementById("debugger2").innerHTML = "iPhone DETECTED, deactivating sensors"                  
                 } else {
-                    onsole.log("Android, deactivated Mqtt")
-                    // sensor_gyro.active = false;
-                    // sensor_accel.active = false;
+                    console.log("Android, deactivated Mqtt")
+                    sensor_gyro.active = false;
+                    sensor_accel.active = false;
                 }     
         }
     });
 
     //////////////////////////////////////////////
 
-    let sensor_gyro = new window.Gyroscope({frequency: 60});
+</script>
+<script>
+
+    let sensor_gyro = new window.Gyroscope({frequency: 20});
 
     sensor_gyro.onreading = () => {
         
@@ -322,7 +343,7 @@
         console.log("Gyroscope found");
     }
 
-    let sensor_accel = new window.Accelerometer({frequency: 60});
+    let sensor_accel = new window.Accelerometer({frequency: 20});
 
     // sensor_accel.start()
 
@@ -343,7 +364,6 @@
         document.getElementById("accel_x").innerHTML = accel_dict["ax"].toFixed(2);
 		document.getElementById("accel_y").innerHTML = accel_dict["ay"].toFixed(2);
 		document.getElementById("accel_z").innerHTML = accel_dict["az"].toFixed(2);
-        document.getElementById("timestamp").innerHTML = accel_dict["ts"].toFixed(2);
     }
 
     sensor_accel.onerror = e => {
