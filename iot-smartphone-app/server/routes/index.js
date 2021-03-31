@@ -33,7 +33,7 @@ router.get("/train", function(req, res){
 // Main Route
 router.get("/test", function(req, res){
   var username = req.query.user
-  res.render("gen_test_data.ejs", {BROKER_URL: BROKER_URL, BROKER_PORT: BROKER_PORT,WML_API_KEY: WML_API_KEY, USER: username});
+  res.render("gen_test_data.ejs", {BROKER_URL: BROKER_URL, BROKER_PORT: BROKER_PORT, USER: username});
 });
 
 router.get("/about", function(req, res){

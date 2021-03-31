@@ -135,7 +135,6 @@ def handle_mqtt_message(client, userdata, message):
         print("caching " + str(len(data_cache)) + " items")
         print(data_flat)
     else:
-
         print("WRITE TO DB")
         write_to_table(data_cache)
         data_cache.clear()

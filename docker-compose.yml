@@ -8,8 +8,6 @@ services:
         environment:
           - BROKER_URL=192.168.178.88
           - BROKER_PORT=9001
-          - WML_API_KEY=azbWTyF8tLLrlhQxzyzcziXKGK7N6seWHnodOpgnZX64
-          - MQTT_TRAIN_TOPIC=
   iot-subscriber:
         build: iot-subscriber/.
         ports:
@@ -19,7 +17,6 @@ services:
           - BROKER_URL=mosquitto
           - MQTT_PORT=1883
           - MQTT_TRAIN_TOPIC=train/#
-
         env_file:
           - pg-datenbank.env
   inference-app:
