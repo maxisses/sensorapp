@@ -181,7 +181,6 @@
     function requestPermission(){
         DeviceMotionEvent.requestPermission()
         DeviceOrientationEvent.requestPermission()
-
         }
     
     gyro_frequency_filter = 0
@@ -259,14 +258,12 @@
 
 
 <script>
-
     //////////////////////////////////////////////
     var input = document.getElementById('flexSwitchCheckDefault');
 
     input.addEventListener('change',function(){
         if(this.checked) {
-            if (username) {
-                
+            if (username) {               
                 if (iOS() == true) {
                     connectMqtt();
                     console.log("iPhone DETECTED")
@@ -306,7 +303,6 @@
                 }     
         }
     });
-
     //////////////////////////////////////////////
 
 </script>
