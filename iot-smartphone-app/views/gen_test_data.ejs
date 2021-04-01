@@ -235,9 +235,11 @@
                 message.destinationName = topic;
                 try {
                     client.send(message);
+                    console.log("message send")
                 }
                 catch (e) {
                     document.getElementById("debugger").innerHTML = "sending messages fails - check broker connectivity: " + e
+                    console.log("sending messages fails - check broker connectivity: " + e)
                 }
                 document.getElementById("alpha").innerHTML = gyro_dict_iphone["oa"].toFixed(2);
                 document.getElementById("beta").innerHTML = gyro_dict_iphone["ob"].toFixed(2);
@@ -266,9 +268,11 @@
                 message.destinationName = topic;          
                 try {
                     client.send(message);
+                    console.log("message send")
                     }
                 catch (e) {
                     document.getElementById("debugger").innerHTML = "sending messages fails 2 - check broker connectivity: " + e
+                    console.log("sending messages fails - check broker connectivity: " + e)
                     }
                 document.getElementById("accel_x").innerHTML = accel_dict_iphone["ax"].toFixed(2);
                 document.getElementById("accel_y").innerHTML = accel_dict_iphone["ay"].toFixed(2);
@@ -317,14 +321,14 @@
             document.getElementById("debugger2").innerHTML = "toggle off"
             document.getElementById('sendenlive').style.visibility = "hidden"
             document.getElementById('sendenoffline').style.visibility = "visible"
-            disconnectMqtt()
-            sensor_gyro.stop()
-            sensor_accel.stop()           
+            disconnectMqtt()          
             if (iOS() == true) {
                     console.log("iPhone, deactivated Mqtt")
                     document.getElementById("debugger2").innerHTML = "iPhone DETECTED, deactivating sensors"                  
                 } else {
                     console.log("Android, deactivated Mqtt")
+                    sensor_gyro.stop()
+                    sensor_accel.stop() 
                     sensor_gyro.active = false;
                     sensor_accel.active = false;
                 }     
