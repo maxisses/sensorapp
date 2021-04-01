@@ -46,7 +46,8 @@ def create_table():
                 y REAL,
                 z REAL,
                 ts REAL,
-                class VARCHAR
+                class VARCHAR,
+                device VARCHAR
         )
         """)
 
@@ -74,9 +75,9 @@ def tranform_messages():
 
 def write_to_table(data_cache):    
     query = """
-        INSERT INTO """ + tablename + """ (username, sensortype, x, y, z, ts, class)
+        INSERT INTO """ + tablename + """ (username, sensortype, x, y, z, ts, class, device)
             VALUES
-            (%s, %s, %s, %s, %s, %s, %s);
+            (%s, %s, %s, %s, %s, %s, %s, %s);
         """
     psycopg2.extras.execute_batch(cur,query,data_cache)
     print("________________________")

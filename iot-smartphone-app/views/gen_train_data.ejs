@@ -197,7 +197,8 @@
                                 ob: event_gyro.beta,
                                 og: event_gyro.gamma,
                                 ts: Date.now(),
-                                class: currentClass    
+                                class: currentClass,
+                                device: "ios"    
                             };
                 
                 console.log(gyro_dict_iphone)
@@ -230,7 +231,8 @@
                                 ay: event_accel.accelerationIncludingGravity.y,
                                 az: event_accel.accelerationIncludingGravity.z,
                                 ts: Date.now(),
-                                class: currentClass    
+                                class: currentClass,
+                                device: "ios"    
                             };
                 
                 console.log(accel_dict_iphone)
@@ -251,7 +253,6 @@
     
     function getSensor(){
         window.addEventListener("deviceorientation", handleOrientationEvent, false);
-
         window.addEventListener("devicemotion", handleMotionEvent, false);
     };
 </script>
@@ -291,8 +292,6 @@
             document.getElementById('sendenlive').style.visibility = "hidden"
             document.getElementById('sendenoffline').style.visibility = "visible"
             disconnectMqtt()
-            sensor_gyro.stop()
-            sensor_accel.stop()
             if (iOS() == true) {
                     console.log("iPhone, deactivated Mqtt")
                     document.getElementById("debugger2").innerHTML = "iPhone DETECTED, deactivating sensors"                  
@@ -300,6 +299,8 @@
                     console.log("Android, deactivated Mqtt")
                     sensor_gyro.active = false;
                     sensor_accel.active = false;
+                    sensor_gyro.stop()
+                    sensor_accel.stop()
                 }     
         }
     });
@@ -319,7 +320,8 @@
                         ob: sensor_gyro.y,
                         og: sensor_gyro.z,
                         ts: Date.now(),
-                        class: currentClass    
+                        class: currentClass,
+                        device: "android"    
                     };
         console.log(gyro_dict)
         message = new Paho.MQTT.Message(JSON.stringify(gyro_dict));
@@ -357,7 +359,8 @@
                         ay: sensor_accel.y,
                         az: sensor_accel.z,
                         ts: Date.now(),
-                        class: currentClass    
+                        class: currentClass,
+                        device: "android"    
                     }
         message = new Paho.MQTT.Message(JSON.stringify(accel_dict));
         message.destinationName = topic;

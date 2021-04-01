@@ -24,15 +24,15 @@
                         <thead>
                             <tr>
                               <th scope="col">Liegen</th>
-                              <th scope="col">Gehen</th>
                               <th scope="col">Treppen steigen</th>
+                              <th scope="col">Gehen</th>
                             </tr>
                           </tbody>
                         </thead>
                           <tr>
                             <th scope="col" id="lying"></th>
-                            <th scope="col" id="walking"></th>
                             <th scope="col" id="stairs"></th>
+                            <th scope="col" id="walking"></th>
                           </tr>
                         </tbody>
                     </table>
@@ -158,25 +158,26 @@
             let newArray = message.payloadString.split(', ')
             var inferred_class = newArray[0]
             var last_update = new Date(newArray[newArray.length -1].slice(1,-2))
+            console.log(inferred_class)
             console.log(newArray[newArray.length -1].slice(1,-2))
             console.log("Last Update: " + last_update)
             document.getElementById("lying").innerHTML = (newArray[2]*100).toFixed(2) + "%"
-            document.getElementById("walking").innerHTML = (newArray[1]*100).toFixed(2) + "%"
-            document.getElementById("stairs").innerHTML = (newArray[3]*100).toFixed(2) + "%"
+            document.getElementById("walking").innerHTML = (newArray[3]*100).toFixed(2) + "%"
+            document.getElementById("stairs").innerHTML = (newArray[1]*100).toFixed(2) + "%"
             if (inferred_class.includes("lying")) {
                 document.getElementById('stairs').style.background = "white";
                 document.getElementById('walking').style.background = "white";
                 document.getElementById('lying').style.background = "green";
             }
+            if (inferred_class.includes("jumping")) {
+                document.getElementById('lying').style.background = "white";
+                document.getElementById('walking').style.background = "white";
+                document.getElementById('stairs').style.background = "green";           
+            }
             if (inferred_class.includes("walking")) {
                 document.getElementById('lying').style.background = "white";
                 document.getElementById('stairs').style.background = "white";
-                document.getElementById('walking').style.background = "green";           
-            }
-            if (inferred_class.includes("stairs")) {
-                document.getElementById('lying').style.background = "white";
-                document.getElementById('walking').style.background = "white";
-                document.getElementById('stairs').style.background = "green";
+                document.getElementById('walking').style.background = "green";
             }
             document.getElementById("lastinference").innerHTML = last_update
         }
@@ -230,7 +231,8 @@
                                 oa: event_gyro.alpha,
                                 ob: event_gyro.beta,
                                 og: event_gyro.gamma,
-                                ts: Date.now()    
+                                ts: Date.now(),
+                                device: "ios"   
                             };
                 
                 // console.log(gyro_dict_iphone)
@@ -239,7 +241,7 @@
                 message.destinationName = topic;
                 try {
                     client.send(message);
-                    console.log("message send")
+                    //  console.log("message send")
                 }
                 catch (e) {
                     document.getElementById("debugger").innerHTML = "sending messages fails - check broker connectivity: " + e
@@ -263,7 +265,8 @@
                                 ax: event_accel.accelerationIncludingGravity.x,
                                 ay: event_accel.accelerationIncludingGravity.y,
                                 az: event_accel.accelerationIncludingGravity.z,
-                                ts: Date.now()    
+                                ts: Date.now(),
+                                device: "ios"    
                             };
                 
                 // console.log(accel_dict_iphone)
@@ -272,7 +275,7 @@
                 message.destinationName = topic;          
                 try {
                     client.send(message);
-                    console.log("message send")
+                    // console.log("message send")
                     }
                 catch (e) {
                     document.getElementById("debugger").innerHTML = "sending messages fails 2 - check broker connectivity: " + e
@@ -355,6 +358,7 @@
                         ob: sensor_gyro.y,
                         og: sensor_gyro.z,
                         ts: Date.now(),
+                        device: "android"
                     };
         message = new Paho.MQTT.Message(JSON.stringify(gyro_dict));
         message.destinationName = topic;
@@ -389,7 +393,8 @@
                         ax: sensor_accel.x,
                         ay: sensor_accel.y,
                         az: sensor_accel.z,
-                        ts: Date.now(),   
+                        ts: Date.now(),
+                        device: "android"   
                     }
         // document.getElementById("debugger2").innerHTML = JSON.stringify(accel_dict)
         message = new Paho.MQTT.Message(JSON.stringify(accel_dict));

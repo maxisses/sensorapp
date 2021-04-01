@@ -34,3 +34,8 @@ set var for using local or remote mosquitto
 ## backend
 
 
+#### Notes
+Interestingly devicemotion behaves differently on iOS and Android. on iOS it fires regularly on Android only on movement... that makes it a little difficult to compare.
+Neue "Generic Sensor API" for web wird auch nicht unterstützt. Es läuft wohl auf 2 Modelle hinaus....
+
+
