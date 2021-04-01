@@ -197,7 +197,7 @@
                                 oa: event_gyro.alpha,
                                 ob: event_gyro.beta,
                                 og: event_gyro.gamma,
-                                ts: event_gyro.timeStamp,
+                                ts: Date.now(),
                                 class: currentClass    
                             };
                 
@@ -223,14 +223,14 @@
             if (accel_frequency_filter == 3) {
                 accel_frequency_filter = 0
                 var currentClass = document.querySelector('input[name = "btnradio"]:checked').value;
-                console.log("Timestamp:" + event_accel.timeStamp)
+                
                 var accel_dict_iphone = { 
                                 user: username,
                                 sensor: "accelerometer",
                                 ax: event_accel.accelerationIncludingGravity.x,
                                 ay: event_accel.accelerationIncludingGravity.y,
                                 az: event_accel.accelerationIncludingGravity.z,
-                                ts: event_accel.timeStamp,
+                                ts: Date.now(),
                                 class: currentClass    
                             };
                 
@@ -266,16 +266,17 @@
     input.addEventListener('change',function(){
         if(this.checked) {
             if (username) {
+                
                 if (iOS() == true) {
+                    connectMqtt();
                     console.log("iPhone DETECTED")
                     document.getElementById("debugger2").innerHTML = "toggle on iphone"
-                    requestPermission()
-                    connectMqtt();
+                    requestPermission()                  
                     getSensor();
                     document.getElementById('sendenlive').style.visibility = "visible"
                     document.getElementById('sendenoffline').style.visibility = "hidden"
                 } else {
-                    connectMqtt();
+                    connectMqtt();                   
                     console.log("not an iPhone")
                     console.log("aktiviert")
                     sensor_gyro.start()
@@ -293,6 +294,8 @@
             document.getElementById('sendenlive').style.visibility = "hidden"
             document.getElementById('sendenoffline').style.visibility = "visible"
             disconnectMqtt()
+            sensor_gyro.stop()
+            sensor_accel.stop()
             if (iOS() == true) {
                     console.log("iPhone, deactivated Mqtt")
                     document.getElementById("debugger2").innerHTML = "iPhone DETECTED, deactivating sensors"                  
@@ -319,7 +322,7 @@
                         oa: sensor_gyro.x,
                         ob: sensor_gyro.y,
                         og: sensor_gyro.z,
-                        ts: sensor_gyro.timestamp,
+                        ts: Date.now(),
                         class: currentClass    
                     };
         console.log(gyro_dict)
@@ -357,7 +360,7 @@
                         ax: sensor_accel.x,
                         ay: sensor_accel.y,
                         az: sensor_accel.z,
-                        ts: sensor_accel.timestamp,
+                        ts: Date.now(),
                         class: currentClass    
                     }
         message = new Paho.MQTT.Message(JSON.stringify(accel_dict));

@@ -1,10 +1,15 @@
+This Repository contains four applications to genereate training data for an IoT Machine Learning case to classify movements based on smartphone sensor data.
+It contains a node.js express frontend ("iot-smartphone-app") that can be accessed on the Browser with Android and iOS Smartphones. Sensor data of the accelerometer and gyroscope gets published/sent via secure Websocket over MQTT to the mosquitto MQTT Broker. 
+
+A python backend Service is subscribed ("Iot-subscriber") to the broker and writes everything to the database
+
 # local deployment
 
 
 ### 1. create credentials for postgres and put them into pg-datenbank.env file
 
 ## mosquitto TLS
-use certs folder to generate certs with the script and name all server cert to server.***
+use certs folder to generate certs with the script and provide ip address of your network interface and name all server certs (those carry your ip/name) to server.***
 set up mosquitto
 import cert to chrome (for web testing)
 import cert to android (just send the ca.crt file via e.g whatsapp and install it)

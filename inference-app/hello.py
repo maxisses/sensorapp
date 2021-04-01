@@ -9,6 +9,7 @@ import os
 import json
 import requests
 from itertools import islice
+from datetime import datetime
 
 app = Flask(__name__)
 #app.config['SECRET'] = 'my secret key'
@@ -67,9 +68,7 @@ def create_table():
 
 API_KEY = os.getenv("WML_API_KEY")
 scoring_endpoint = os.getenv("SCORING_ENDPOINT")
-token_response = requests.post('https://iam.cloud.ibm.com/identity/token', data={"apikey": API_KEY, "grant_type": 'urn:ibm:params:oauth:grant-type:apikey'})
-mltoken = token_response.json()["access_token"]
-header = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + mltoken}
+
 def transform_and_post_messages(data_cache):
     aggregated_data =[]
     for item in data_cache:
@@ -86,11 +85,19 @@ def transform_and_post_messages(data_cache):
     
     # manually define and pass the array(s) of values to be scored in the next line
     payload_scoring = {"input_data": [{"fields": column_names, "values": [aggregated_data]}]}
+    try:
+        response_scoring = requests.post(scoring_endpoint, json=payload_scoring, headers={'Authorization': 'Bearer ' + mltoken})
+    except:
+        token_response = requests.post('https://iam.cloud.ibm.com/identity/token', data={"apikey": API_KEY, "grant_type": 'urn:ibm:params:oauth:grant-type:apikey'})
+        mltoken = token_response.json()["access_token"]
+        response_scoring = requests.post(scoring_endpoint, json=payload_scoring, headers={'Authorization': 'Bearer ' + mltoken})
 
-    response_scoring = requests.post(scoring_endpoint, json=payload_scoring, headers={'Authorization': 'Bearer ' + mltoken})
+
     print("Scoring response for user: " + data_cache[0][0])
-    print(response_scoring.json())
-    mqtt.publish('prediction/'+username, str(response_scoring.json()))
+    print(time_window_start)
+    message = str([response_scoring.json()["predictions"][0]["values"][0][0], *response_scoring.json()["predictions"][0]["values"][0][1], datetime.fromtimestamp(time_window_start/1000).strftime('%Y-%m-%d %H:%M:%S')])
+    mqtt.publish('prediction/'+username, message)
+    print("mqtt message published")
     return ""
 
 def write_to_table(data_cache):    
@@ -143,7 +150,7 @@ def index():
 
 data_cache = []
 messages_to_aggregate = 10
-post_to_api_freq = 20
+post_to_api_freq = 5
 @mqtt.on_message()
 def handle_mqtt_message(client, userdata, message):
     global data_cache
@@ -164,13 +171,13 @@ def handle_mqtt_message(client, userdata, message):
     if check_list([item for subcache in data_cache for item in subcache], data_cache[0][0], messages_to_aggregate):
         user_selection_cache = []
         current_user = data_cache[0][0]
-        print("Cache ready for ML for user: " + current_user)
+        print(str(messages_to_aggregate) +" messages Cached for user: " + current_user)
         remove_items = []
         [user_selection_cache.append(item) if current_user == item[0] else remove_items.append(idx) for idx, item in enumerate(data_cache)]
         print("transforming " + str(messages_to_aggregate) + " messages for ML model and Posting") 
         if post_to_api_freq != 0:
             post_to_api_freq -=1
-            print(str(post_to_api_freq) + " away from next post/inference to ML model")
+            print(str(post_to_api_freq) + " caches away from next post/inference to ML model")
         else:
             transform_and_post_messages(user_selection_cache)
             post_to_api_freq = 10

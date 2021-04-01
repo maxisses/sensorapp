@@ -4,7 +4,7 @@ services:
         build: iot-smartphone-app/.
         restart: always
         ports:
-          - 3000:3000
+          - 3005:3000
         environment:
           - BROKER_URL=192.168.178.88
           - BROKER_PORT=9001
