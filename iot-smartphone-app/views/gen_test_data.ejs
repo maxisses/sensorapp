@@ -229,7 +229,7 @@
                                 ts: Date.now()    
                             };
                 
-                console.log(gyro_dict_iphone)
+                // console.log(gyro_dict_iphone)
                 message = new Paho.MQTT.Message(JSON.stringify(gyro_dict_iphone));
                 document.getElementById("debugger").innerHTML = message;
                 message.destinationName = topic;
@@ -262,7 +262,7 @@
                                 ts: Date.now()    
                             };
                 
-                console.log(accel_dict_iphone)
+                // console.log(accel_dict_iphone)
                 message = new Paho.MQTT.Message(JSON.stringify(accel_dict_iphone));
                 document.getElementById("debugger").innerHTML = message;
                 message.destinationName = topic;          
