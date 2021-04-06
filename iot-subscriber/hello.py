@@ -45,7 +45,7 @@ def create_table():
                 x REAL,
                 y REAL,
                 z REAL,
-                ts REAL,
+                ts BIGINT,
                 class VARCHAR,
                 device VARCHAR
         )
