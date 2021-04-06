@@ -156,10 +156,12 @@ def index():
 data_cache = []
 messages_to_aggregate = 10
 post_to_api_freq = 5
+current_users = []
 @mqtt.on_message()
 def handle_mqtt_message(client, userdata, message):
     global data_cache
     global post_to_api_freq
+    global current_users
     data = dict(
         topic=message.topic,
         payload=message.payload.decode()
@@ -168,27 +170,28 @@ def handle_mqtt_message(client, userdata, message):
     data_flat = []
     #print(data)
     for key, value in data.items():
-         data_flat.append(value)   
+         data_flat.append(value)
+         current_users.append(data_flat[0])   
     #print(data_flat)
     data_cache.append(data_flat)
-    // print(data_cache[0])
+    current_users = list(set(current_users))
+    print(current_users)
 
-    ## filter for each user 
-    if check_list([item for subcache in data_cache for item in subcache], data_cache[0][0], messages_to_aggregate):
-        user_selection_cache = []
-        current_user = data_cache[0][0]
-        print(str(messages_to_aggregate) +" messages Cached for user: " + current_user)
-        remove_items = []
-        [user_selection_cache.append(item) if current_user == item[0] else remove_items.append(idx) for idx, item in enumerate(data_cache)]
-        print("transforming " + str(messages_to_aggregate) + " messages for ML model and Posting") 
-        print(user_selection_chache)
-        if post_to_api_freq != 0:
-            post_to_api_freq -=1
-            print(str(post_to_api_freq) + " caches away from next post/inference to ML model")
-        else:
-            transform_and_post_messages(user_selection_cache)
-            post_to_api_freq = 10
-        data_cache = list(map(data_cache.__getitem__, remove_items))
+    ## filter for each user
+    for current_user in current_users: 
+        if check_list([item for subcache in data_cache for item in subcache], current_user, messages_to_aggregate):
+            user_selection_cache = []
+            print(str(messages_to_aggregate) +" messages Cached for user: " + current_user)
+            remove_items = []
+            [user_selection_cache.append(item) if current_user == item[0] else remove_items.append(idx) for idx, item in enumerate(data_cache)]
+            print("transforming " + str(messages_to_aggregate) + " messages for ML model and Posting") 
+            if post_to_api_freq != 0:
+                post_to_api_freq -=1
+                print(str(post_to_api_freq) + " caches away from next post/inference to ML model")
+            else:
+                transform_and_post_messages(user_selection_cache)
+                post_to_api_freq = 10
+            data_cache = list(map(data_cache.__getitem__, remove_items))
 
 # @mqtt.on_log()
 # def handle_logging(client, userdata, level, buf):
