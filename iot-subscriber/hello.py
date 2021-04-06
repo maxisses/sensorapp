@@ -73,7 +73,8 @@ def create_table():
 def tranform_messages():
     return ""
 
-def write_to_table(data_cache):    
+def write_to_table(data_cache):
+    global cur    
     query = """
         INSERT INTO """ + tablename + """ (username, sensortype, x, y, z, ts, class, device)
             VALUES
@@ -81,16 +82,15 @@ def write_to_table(data_cache):
         """
     try:
         psycopg2.extras.execute_batch(cur,query,data_cache)
+        print("________________________")
+        print(f"--- insert executed and written to table {tablename} ----")
+        print("________________________")
     except (Exception, psycopg2.OperationalError) as error:
+        print("Error: "+error)
         conn = None
         conn = psycopg2.connect(dbname=dbname, user=dbuser, host=dbhost, port=dbport, password=dbpassword)
         conn.autocommit = True
         cur = conn.cursor()
-        print(error)
-
-    print("________________________")
-    print(f"--- insert executed and written to table {tablename} ----")
-    print("________________________")
 
 mqtt = Mqtt(app)
 socketio = SocketIO(app)
