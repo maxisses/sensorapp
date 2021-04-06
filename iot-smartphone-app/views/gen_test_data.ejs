@@ -3,8 +3,8 @@
 <div class="jumbotron">
     <div class="row justify-content-center text-center" style="display: flex; flex-wrap: wrap">
         <div class="col-xl-12" style="display: flex; flex-wrap: wrap">
-            <div class="form-check form-switch mx-auto d-flex justify-content-center text-center">
-                <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault">
+            <div class="form-check form-switch mx-auto d-flex justify-content-center text-center" style="margin: 0.5rem;">
+                <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault" style="width: 5rem; height: 2rem;">
                 <label class="form-check-label" for="flexSwitchCheckDefault"></label>
             </div>
         </div>       
@@ -109,6 +109,7 @@
     var mqqt_broker_url = "<%= BROKER_URL %>"
     var mqqt_broker_port = "<%= BROKER_PORT %>"
     var username = "<%= USER %>"
+    var sensor_frequency = "<%= FREQUENCY %>"
     console.log(username)
     console.log("env vars to connect to mqtt: " + mqqt_broker_url + ":" + mqqt_broker_port )
 
@@ -219,11 +220,11 @@
         DeviceOrientationEvent.requestPermission()
         }
     
-    gyro_frequency_filter = 0
+    var gyro_frequency_filter = 0
     function handleOrientationEvent(event_gyro) {
             gyro_frequency_filter ++;
             console.log(gyro_frequency_filter)
-            if (gyro_frequency_filter == 3) {
+            if (gyro_frequency_filter == 60/sensor_frequency) {
                 gyro_frequency_filter = 0
                 var gyro_dict_iphone = { 
                                 user: username,
@@ -253,10 +254,10 @@
                 }
             }
     
-    accel_frequency_filter = 0
+    var accel_frequency_filter = 0
     function handleMotionEvent(event_accel) {
             accel_frequency_filter ++;
-            if (accel_frequency_filter == 3) {
+            if (accel_frequency_filter == 60/sensor_frequency) {
                 accel_frequency_filter = 0
                 
                 var accel_dict_iphone = { 
@@ -347,7 +348,7 @@
 </script>
 <script>
 
-    let sensor_gyro = new window.Gyroscope({frequency: 20});
+    let sensor_gyro = new window.Gyroscope({frequency: sensor_frequency});
 
     sensor_gyro.onreading = () => {
         
@@ -382,7 +383,7 @@
         console.log("Gyroscope found");
     }
 
-    let sensor_accel = new window.Accelerometer({frequency: 20});
+    let sensor_accel = new window.Accelerometer({frequency: sensor_frequency});
 
     // sensor_accel.start()
 

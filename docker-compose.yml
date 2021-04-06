@@ -8,6 +8,7 @@ services:
         environment:
           - BROKER_URL=192.168.178.88
           - BROKER_PORT=9001
+          - FREQUENCY=20
   iot-subscriber:
         build: iot-subscriber/.
         ports:

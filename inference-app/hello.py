@@ -33,7 +33,7 @@ def create_table():
     dbpassword = os.getenv('DB_PASSWORD')
     dbhost = os.getenv('DB_HOST')
     dbport = os.getenv('DB_PORT')
-    tablename = "inferredvalues"
+    tablename = "predictions"
 
     """ create table in the PostgreSQL database"""
     command = (
@@ -42,7 +42,7 @@ def create_table():
                 username VARCHAR,
                 class VARCHAR,
                 probas VARCHAR,
-                ts REAL,
+                ts BIGINT,
         )
         """)
 
