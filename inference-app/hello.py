@@ -96,7 +96,7 @@ def transform_and_post_messages(data_cache):
     print("Scoring response for user: " + data_cache[0][0])
     print(time_window_start)
     try:
-        message = str([response_scoring.json()["predictions"][0]["values"][0][0], *response_scoring.json()["predictions"][0]["values"][0][1], datetime.fromtimestamp(time_window_start/1000).strftime('%Y-%m-%d %H:%M:%S')])
+        message = str([response_scoring.json()["predictions"][0]["values"][0][0], *response_scoring.json()["predictions"][0]["values"][0][1], datetime.fromtimestamp(time_window_start/1000).strftime('%Y-%m-%dT%H:%M:%S')])
     except:
         message = "Machine Learning model answers is incorrect"
         print(response_scoring.json())
