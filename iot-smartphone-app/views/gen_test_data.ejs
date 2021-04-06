@@ -220,11 +220,12 @@
         DeviceOrientationEvent.requestPermission()
         }
     
-    var gyro_frequency_filter = 0
+    gyro_frequency_filter = 0
+    var sensor_frequency_iphone = 60/sensor_frequency
     function handleOrientationEvent(event_gyro) {
             gyro_frequency_filter ++;
             console.log(gyro_frequency_filter)
-            if (gyro_frequency_filter == 60/sensor_frequency) {
+            if (gyro_frequency_filter == sensor_frequency_iphone) {
                 gyro_frequency_filter = 0
                 var gyro_dict_iphone = { 
                                 user: username,
@@ -254,10 +255,10 @@
                 }
             }
     
-    var accel_frequency_filter = 0
+    accel_frequency_filter = 0
     function handleMotionEvent(event_accel) {
             accel_frequency_filter ++;
-            if (accel_frequency_filter == 60/sensor_frequency) {
+            if (accel_frequency_filter == sensor_frequency_iphone) {
                 accel_frequency_filter = 0
                 
                 var accel_dict_iphone = { 
