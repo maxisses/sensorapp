@@ -79,7 +79,15 @@ def write_to_table(data_cache):
             VALUES
             (%s, %s, %s, %s, %s, %s, %s, %s);
         """
-    psycopg2.extras.execute_batch(cur,query,data_cache)
+    try:
+        psycopg2.extras.execute_batch(cur,query,data_cache)
+    except (Exception, psycopg2.OperationalError) as error:
+        conn = None
+        conn = psycopg2.connect(dbname=dbname, user=dbuser, host=dbhost, port=dbport, password=dbpassword)
+        conn.autocommit = True
+        cur = conn.cursor()
+        print(error)
+
     print("________________________")
     print(f"--- insert executed and written to table {tablename} ----")
     print("________________________")
