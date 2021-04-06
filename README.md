@@ -18,7 +18,7 @@ import cert to android (just send the ca.crt file via e.g whatsapp and install i
 ### 3. docker-compose up
 
 ## local https serving (required because sensor works only in https context):
-npx localtunnel --port 3000
+npx localtunnel --port 3005
 
 # remote deployment
 

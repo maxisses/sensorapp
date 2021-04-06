@@ -102,7 +102,7 @@ def transform_and_post_messages(data_cache):
         print(response_scoring.json())
     
     mqtt.publish('prediction/'+username, message)
-    print("mqtt message published")
+    print("mqtt message with inference published")
     return ""
 
 def write_to_table(data_cache):    
@@ -171,6 +171,7 @@ def handle_mqtt_message(client, userdata, message):
          data_flat.append(value)   
     #print(data_flat)
     data_cache.append(data_flat)
+    // print(data_cache[0])
 
     ## filter for each user 
     if check_list([item for subcache in data_cache for item in subcache], data_cache[0][0], messages_to_aggregate):
@@ -180,6 +181,7 @@ def handle_mqtt_message(client, userdata, message):
         remove_items = []
         [user_selection_cache.append(item) if current_user == item[0] else remove_items.append(idx) for idx, item in enumerate(data_cache)]
         print("transforming " + str(messages_to_aggregate) + " messages for ML model and Posting") 
+        print(user_selection_chache)
         if post_to_api_freq != 0:
             post_to_api_freq -=1
             print(str(post_to_api_freq) + " caches away from next post/inference to ML model")
