@@ -1,0 +1,18 @@
+kind: Service
+apiVersion: v1
+metadata:
+  labels:
+    app: mosquitto
+    app.kubernetes.io/component: mosquitto
+    app.kubernetes.io/instance: mosquitto
+    app.kubernetes.io/part-of: sensorapp
+  name: mosquitto-external
+spec:
+  ports:
+    - name: 8883-tcp
+      protocol: TCP
+      port: 8883
+      targetPort: 8883
+  selector:
+    deployment: mosquitto
+  type: LoadBalancer
