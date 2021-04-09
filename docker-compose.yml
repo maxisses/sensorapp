@@ -19,7 +19,7 @@ services:
           - MQTT_PORT=1883
           - MQTT_TRAIN_TOPIC=train/#
         env_file:
-          - pg-datenbank.env
+          - openshift/pg-datenbank.env
   inference-app:
         build: inference-app/.
         ports:
@@ -30,8 +30,8 @@ services:
           - MQTT_PORT=1883
           - MQTT_INFER_TOPIC=inference/#
         env_file:
-          - pg-datenbank.env
-          - ibm-wml.env
+          - openshift/pg-datenbank.env
+          - openshift/ibm-wml.env
   mosquitto:
         build: mosquitto-broker/.
         ports:

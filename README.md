@@ -9,7 +9,8 @@ A python backend Service is subscribed ("Iot-subscriber") to the broker and writ
 ### 1. create pg-datenbank.env file and ibm-wml.env file and put it database and wml credentials; also adjust mqtt BROKER_URL to your local ip address in the docker-compose file
 
 ### (optional) mosquitto TLS
-use certs folder to generate certs with the script and provide ip address of your network interface and name all server certs (those carry your ip/name) to server.***
+
+use certs folder to generate certs with the script and provide ip address of your network interface in the Script "generate.sh" and name all server certs (those carry your ip/name) to server.***
 set up mosquitto
 import cert to chrome (for web testing the connection to mqtt from your pc/mac)
 import cert to android (just send the ca.crt file via e.g whatsapp and install it)
