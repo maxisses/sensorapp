@@ -47,4 +47,4 @@ services:
         environment:
           - MQTT_INFER_TOPIC=inference/#
         env_file:
-          - pg-datenbank.env
+          - openshift/pg-datenbank.env

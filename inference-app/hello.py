@@ -77,11 +77,14 @@ def transform_and_post_messages(data_cache):
     username = data_cache[0][0]
 
     column_names = []
-    sensor_labels = ["x", "y", "z", "alpha", "gamma", "beta"]
-    iterations = int(len(aggregated_data)/6)
+    sensor_labels = ["x", "y", "z"]    ### change to this when gyroscope is included: ["x", "y", "z", "alpha", "gamma", "beta"]
+    iterations = int(len(aggregated_data)/int(len(sensor_labels)))
     for i in range(0,iterations, 1):
         sensor_labels_temp = [ current_label + "_" + str(i+1) for current_label in sensor_labels]
         column_names = [*column_names, *sensor_labels_temp]
+
+    print("fields:"+ str(column_names))
+    print("values:"+ str([aggregated_data]))
     
     # manually define and pass the array(s) of values to be scored in the next line
     payload_scoring = {"input_data": [{"fields": column_names, "values": [aggregated_data]}]}
@@ -101,7 +104,9 @@ def transform_and_post_messages(data_cache):
         message = "Machine Learning model answers is incorrect"
         print(response_scoring.json())
     
+
     mqtt.publish('prediction/'+username, message)
+    print(message)
     print("mqtt message with inference published")
     return ""
 
@@ -172,10 +177,13 @@ def handle_mqtt_message(client, userdata, message):
     for key, value in data.items():
          data_flat.append(value)
          current_users.append(data_flat[0])   
-    #print(data_flat)
-    data_cache.append(data_flat)
+    ## print(data_flat)
+
+    ## filter out only accelerometer
+    if data_flat[1] == "accelerometer":
+        data_cache.append(data_flat)
     current_users = list(set(current_users))
-    print(current_users)
+    ## print(current_users)
 
     ## filter for each user
     for current_user in current_users: 

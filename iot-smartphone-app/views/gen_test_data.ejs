@@ -162,9 +162,9 @@
             console.log(inferred_class)
             console.log(newArray[newArray.length -1].slice(1,-2))
             console.log("Last Update: " + last_update)
-            document.getElementById("lying").innerHTML = (newArray[2]*100).toFixed(2) + "%"
+            document.getElementById("lying").innerHTML = (newArray[1]*100).toFixed(2) + "%"
             document.getElementById("walking").innerHTML = (newArray[3]*100).toFixed(2) + "%"
-            document.getElementById("stairs").innerHTML = (newArray[1]*100).toFixed(2) + "%"
+            document.getElementById("stairs").innerHTML = (newArray[2]*100).toFixed(2) + "%"
             if (inferred_class.includes("lying")) {
                 document.getElementById('stairs').style.background = "white";
                 document.getElementById('walking').style.background = "white";
