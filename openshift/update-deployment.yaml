@@ -1,0 +1,33 @@
+spec:
+      volumes:
+        - name: mosquitto-certs
+          secret:
+            secretName: mosquitto-cert
+            defaultMode: 420
+        - name: config-file
+          configMap:
+            name: mosquitto-config
+            defaultMode: 420
+      containers:
+        - name: mosquitto
+          image: >-
+            image-registry.openshift-image-registry.svc:5000/sensorapp-dummymax/mosquitto@sha256:2fe6f488a6e10b01ad3434ad09a3d9530335409f60753981cb9df981fce478e8
+          ports:
+            - containerPort: 9001
+              protocol: TCP
+            - containerPort: 1883
+              protocol: TCP
+            - containerPort: 8883
+              protocol: TCP
+          resources: {}
+          volumeMounts:
+            - name: mosquitto-volume-1
+              mountPath: /mosquitto/data
+            - name: mosquitto-volume-2
+              mountPath: /mosquitto/log
+            - name: mosquitto-certs
+              readOnly: true
+              mountPath: /etc/mosquitto/certs/
+            - name: config-file
+              mountPath: /mosquitto/config/mosquitto.conf
+              subPath: mosquitto.conf

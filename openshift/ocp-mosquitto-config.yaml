@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mosquitto-config
+  namespace: sensorapp-dummymax
+  labels:
+    app: sensorapp  
+data:
+  mosquitto.conf: |    
+    persistence false
+    # mqtt
+    listener 1883
+    protocol mqtt
+    # websockets
+    # websockets over ssl
+    listener 8883
+    protocol websockets
+    certfile /etc/mosquitto/certs/ocpclusterpub-39df0ed7a3c2ec1b2ad7d1247807cc2f-0001_default.pem
+    cafile /etc/mosquitto/certs/ocpclusterpub-39df0ed7a3c2ec1b2ad7d1247807cc2f-0001_default_intermediate.pem
+    keyfile /etc/mosquitto/certs/ocpclusterpub-39df0ed7a3c2ec1b2ad7d1247807cc2f-0001_default.key
+    allow_anonymous true
