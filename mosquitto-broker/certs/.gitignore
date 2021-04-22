@@ -1,1 +1,4 @@
 fromibmcloud
+*.crt
+*.csr
+*.key
